@@ -112,6 +112,10 @@ The number of patterns after each `\` determine the arity of the function that
 a `case` expression produces. The *n*th pattern after the `\` is matched on
 the *n*th argument given to the function.
 
+Note that the patterns after the `\` must be enclosed by parentheses if they
+consist of more than one token, just like patterns in a lambda expression, but
+unlike the pattern that can come before the `\`.
+
 If there is no scrutinee, it is not immediately clear what the meaning of an
 expression without clauses, i.e. the expression `case of {}`, should be, since
 the number of arguments to the anonymous function is not specified. User might
@@ -137,15 +141,27 @@ variables.
         <td><i>lexp</i></td><td>&rarr;</td><td><tt>case</tt> <i>exp</i> <tt>of</tt> <tt>{</tt> <i>alts</i> <tt>}</tt></td>
     </tr>
     <tr>
-        <td></td><td>|</td><td><tt>case</tt> <i>exp</i> <tt>of</tt> <tt>{}</tt></td><td>(<i>with</i> <tt>-XEmptyCase</tt>)</td>
+        <td></td><td>|</td><td><tt>case</tt> <i>exp</i> <tt>of</tt> <tt>{</tt> <i>nalts</i> <tt>}</tt></td>
+    </tr>
+    <tr>
+        <td></td><td>|</td><td><tt>case</tt> <i>exp</i> <tt>of</tt> <tt>{}</tt></td><td>(with <tt>-XEmptyCase</tt>)</td>
     <tr>
         <td><i>alts</i></td><td>&rarr;</td><td><i>alt<sub>1</sub></i> <tt>;</tt> &hellip; <tt>;</tt> <i>alt<sub>n</sub></i></td><td>(<i>n</i> &ge; 1)</td>
     </tr>
     <tr>
-        <td><i>alt</i></td><td>&rarr;</td><td><i>pat</i> <tt>-&gt;</tt> <i>exp</i> [ <tt>where</tt> <i>decls</i> ]</td>
+        <td><i>alt</i></td><td>&rarr;</td><td><i>pat</i> <b>[ <tt>\</tt> <i>apat<sub>1</sub></i> &hellip; <i>apat<sub>n</sub></i><tt> ]</b> -&gt;</tt> <i>exp</i> [ <tt>where</tt> <i>decls</i> ]</td><td>(<i>n</n> &ge; 1)</td>
     </tr>
     <tr>
-        <td></td><td>|</td><td><i>pat</i> <i>gdpat</i> [ <tt>where</tt> <i>decls</i> ]</td>
+        <td></td><td>|</td><td><i>pat</i> <b>[ <tt>\</tt> <i>apat<sub>1</sub></i> &hellip; <i>apat<sub>n</sub></i><tt> ]</b> <i>gdpat</i> [ <tt>where</tt> <i>decls</i> ]</td><td>(<i>n</n> &ge; 1)</td>
+    </tr>
+    <tr>
+        <td><b><i>nalts</i></b></td><td><b>&rarr;</b></td><td><b><i>nalt<sub>1</sub></i> <tt>;</tt> &hellip; <tt>;</tt> <i>nalt<sub>n</sub></i></b></td><td><b>(<i>n</i> &ge; 1)</b></td>
+    </tr>
+    <tr>
+        <td><b><i>nalt</i></b></td><td><b>&rarr;</b></td><td><b><tt>\</tt> <i>apat<sub>1</sub></i> &hellip; <i>apat<sub>n</sub></i><tt> -&gt;</tt> <i>exp</i> [ <tt>where</tt> <i>decls</i> ]</b></td><td><b>(<i>n</n> &ge; 1)</b></td>
+    </tr>
+    <tr>
+        <td></td><td><b>|</b></td><td><b><tt>\</tt> <i>apat<sub>1</sub></i> &hellip; <i>apat<sub>n</sub></i><tt> <i>gdpat</i> [ <tt>where</tt> <i>decls</i> ]</b></td><td><b>(<i>n</n> &ge; 1)</b></td>
     </tr>
     <tr>
         <td></td><td>|</td><td></td><td>(empty alternative)</td>
@@ -167,13 +183,10 @@ variables.
     </tr>
 <table>
 
+**Bold** indicates changes to the existing BNF.
+
 Aside from the explicit layout using `{`, `}`, and `;`, implicit layout as described in the Haskell
 report can also be used.
-
-In expressions that have zero scrutinees and multiple guards, there is an ambiguity as to whether
-the expression has multiple alternatives with one guard each or one alternative with multiple guards
-(or any combination thereof). However, the semantics for these are equivalent, so this ambiguity can be
-resolved in an arbitrary way.
 
 ## Examples
 
