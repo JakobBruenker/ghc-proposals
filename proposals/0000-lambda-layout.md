@@ -8,10 +8,12 @@ implemented: ""
 
 This proposal is [discussed at this pull request](https://github.com/ghc-proposals/ghc-proposals/pull/302).
 
-# Multi-way lambda expressions (`\ of`)
+# Lambda extension for `case`
 
-This proposal introduces a new extension `-XMultiWayLambda`, which introduces a
+This proposal introduces a new extension `-XLambdaCaseOf`, which introduces a
 lambda-like expression capable of handling multiple clauses as well as guards.
+This proposal expands the functionality of the `-XLambdaCase` extension, by
+extending the `case` syntax to allow lambda expression functionality.
 
 ## Motivation
 
@@ -39,41 +41,38 @@ lambda expressions closer to those of function declarations:
     regular case-expressions.
     - If there were an expression that had pattern matching syntax more similar
       to lambda expressions but which could also have guards and multiple clauses,
-      it could be used instead of `-XLambdaCase` and would be able to match on
-      multiple patterns.
+      it would be strictly more powerful than the existing `-XLambdaCase`,
+      since it would be able to match on multiple patterns.
  2. The extension `-XMultiWayIf` essentially introduces standalone guards,
     simplifying the use of guards that aren't at the outermost level of a
     function declaration or case-expression. Among other things, this made it
     easier to use guards inside of lambda expressions.
     - If there were an expression similar to lambda expressions that could have
-      guards and wasn't required to have at
-      least one parameter, it could be used instead of `-XMultiWayIf`. This
-      includes all uses of `-XMultiWayIf`, not just those inside of lambdas
-      (see Example section).
+      guards, `-XMultiWayIf` would not be necessary as a workaround for guards
+      in lambda expressions in those cases.
  3. During the implementation of `-XLambdaCase`,
     [some suggested](https://gitlab.haskell.org/ghc/ghc/issues/4359#note_51110)
     allowing lambda expressions to have multiple clauses. This was not
     implemented: The most obvious approach of turning `\` into a layout herald
     had the disadvantage of making some common idioms invalid.
-    - This can be circumvented by introducing a new expression that isn't required
-      to be backwards compatible with existing idioms.
+    - The syntax extension of introduced in this proposal is fully backwards
+      compatible with those idioms.
 
 This proposal, then, aims to overcome the shortcomings of lambda expressions
-and allows a new expression to have the same capabilities as function declarations,
-obviating the need for `-XMultiWayIf`, `-XLambdaCase`, and potentially even
-most of function declaration syntax, if a user wishes to use the new expression
-instead (see Example section). This new expression is introduced with the sequence `\ of`. It
-behaves similarly to lambda expressions, except with layout, guards and multiple clauses; for example,
-here is a definition of filter in terms of fix:
+and allows the `case` expression to have the same capabilities as function
+declarations, which can be used instead of `-XLambdaCase`, many instances of
+`-XMultiWayIf`, and most of function declaration syntax, if a user wishes to
+use the new expression instead. Furthermore, it can be used in situations that
+are not conveniently covered by existing constructs (see Example section). As
+an example of how the `case` construct is extended, here is a definition of
+filter using it:
 
 ```haskell
-filter = fix \of filter' _ []                 -> []
-                 filter' p (x:xs) | p x       -> x : rest
-                                  | otherwise ->     rest
-                   where rest = filter' p xs
+filter = case of
+  \_ []                 -> []
+  \p (x:xs) | p x       -> x : rest
+            | otherwise -> rest
 ```
-
-The `\of` can be read as "*lambda* comprised *of* the following cases".
 
 By combining the functionality of several features into one feature in
 a way that's consistent with the rest of the language, it enables users who
@@ -82,49 +81,64 @@ language.
 
 ## Proposed Change Specification
 
-A new extension `-XMultiWayLambda` is implemented. Under this extension, a new
-expression is enabled, introduced by the token sequence `\ of`. The whitespace between  `\` and `of`
-is optional and may contain an arbitrary sequence of whitespace characters.
-`\ of` behaves in a way largely similar to `\`, but it is a layout herald, can have multiple
-clauses, and may contain guards (see BNF for details).
+The functionality of `-XLambdaCase` is extended, according to the following
+schema (for a more formal treatment, see BNF below):
 
-Zero clauses are not permitted, as the expression would be ambiguous.
-(See `Alternatives` section for details.)
-This means that with `-XEmptyCase`,
-`-XLambdaCase` still has one (albeit rarely used) construct that cannot be
-replaced by a `\ of`-expression, though
-`\case {}` can (even today) be replaced by `\x -> case x of {}`. This shortcoming
-could potentially
-be addressed in a future proposal, for example by adding absurd patterns, to
-provide a more general solution. Note that the `\case {}` construct only works for matching
-on a single pattern.
+```haskell
+case [ scrutinee ] of
+  [ Pattern_0a ] \ Pattern_1a ... Pattern_na -> Expression_a
+  [ Pattern_0b ] \ Pattern_1b ... Pattern_nb -> Expression_b
+  ...
+```
 
-Like the existing behavior for alternatives in case- and
-`\case`-expressions, and equations in function declaration syntax, it is
-possible to use `where` clauses within each clause of a `\ of`-expression.
+This is equivalent to
 
-Explicit layout using braces can be used instead of the implicit layout.
+```haskell
+\var_1 ... var_n -> case ([ scrutinee, ] var_1, ..., var_n) of
+  ([ Pattern_0a, ] Pattern_1a, ..., Pattern_na) -> Expression_a
+  ([ Pattern_0b, ] Pattern_1b, ..., Pattern_nb) -> Expression_b
+```
 
-As with function declaration equations, all clauses must have the same number of patterns.
+The `case` expression is now able to define anonymous functions. The scrutinee
+may be omitted, in which case the corresponding pattern in each clause must also be
+omitted. Furthermore, in each clause, between the usual pattern (if it is present) and
+the arrow, a backslash and a number of patterns may be written. The
+number of patterns must be consistent across all clauses, and the types of
+corresponding patterns must match (e.g., the first pattern after the backslash
+must have the same type for all clauses). As usual, `case` clauses can
+contain guards as well.
 
-Once the [*Binding type variables in lambda-expressions*](https://github.com/ghc-proposals/ghc-proposals/blob/master/proposals/0155-type-lambda.rst) proposal is being implemented,
-with `-XTypeAbstractions`, `\ of`-expressions will also be able to bind type
+If there is no scrutinee, it is not immediately clear what the meaning of an
+expression without clauses, i.e. the expression `case of {}`, should be, since
+the number of arguments to the anonymous function is not specified. The most
+useful and most obvious variant is to assume that this function takes one
+argument, thus, `case of {}` will be equivalent to `\x -> case x of {}`.
+(Other approaches are possible, see Alternatives section.)
+This expression is only valid with the `-XEmptyCase` extension.
+
+Like the existing behavior for alternatives in `case`
+expressions, and equations in function declaration syntax, it is
+possible to use `where` clauses within each clause of the extended `case`
+expression.
+
+Once the [*Binding type variables in lambda-expressions*](https://github.com/ghc-proposals/ghc-proposals/blob/master/proposals/0155-type-lambda.rst)
+proposal is being implemented, with `-XTypeAbstractions`, `case`-expressions will also be able to bind type
 variables.
-
-Given an `\ of`-expression `ofexp` with one or more scrutinees and function `f` declared with function
-declaration syntax
-and with the same alternatives and same guards for each alternative as `ofexp`, the semantics of the
-expression `ofexp` are the same as those of the expression `f`. If `ofexp` has no scrutinees, the
-semantics are the same as those of an expression `p` declared with a pattern binding with the same
-guards as `ofexp`.
 
 ### BNF of changed syntax
 
-*ofexp* → `\` `of` `{` *ofalts* `}`  
-*ofalts* → *ofalt₁* `;` … `;` *ofaltₙ*  
-*ofalt* → [ *apat₁* … *apatₙ* ] `->` *exp* [`where` *decls*]  
- | [ *apat₁* … *apatₙ* ] *gdpat* [`where` *decls*]
- 
+<table>
+    <tr>
+        <td><i>lexp</i></td><td>&rarr;`case` <i>exp</i> `of` { <i>alts</i> }</td>
+    </tr>
+    <tr>
+        <td><i>alts</i></td><td>&rarr;<i>alt<sub>1</sub></i> ; … ; <i>altₙ</i></td>
+    </tr>
+    <tr>
+        <td>*alt*</td><td>→ *pat* -> *exp* [`where` *decls*]</td>
+    </tr>
+<table>
+
 Aside from the explicit layout using `{`, `}`, and `;`, implicit layout as described in the Haskell
 report can also be used.
 
@@ -364,6 +378,7 @@ doesn't yet exist.
    and similarly for `case x of {}`, which only matches on `x`.
    A syntax to resolve this has been proposed in the discussion: `(\of)` for matching on no arguments,
    `(\of _)` for one, `(\of _ _)` for two, and so on.
+    -- TODO -- absurd patterns?
    
  - Regular lambda expressions could be extended to use layout and guards, however,
    this necessitates some potentially controversial decision on when exactly to
