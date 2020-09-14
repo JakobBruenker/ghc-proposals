@@ -102,24 +102,29 @@ This is equivalent to
 The `case` expression is now able to define anonymous functions. The scrutinee
 may be omitted, in which case the corresponding pattern in each clause must also be
 omitted. Furthermore, in each clause, between the usual pattern (if it is present) and
-the arrow, a backslash and a number of patterns may be written. The
+the arrow, a `\` and a number of patterns may be written. The
 number of patterns must be consistent across all clauses, and the types of
 corresponding patterns must match (e.g., the first pattern after the backslash
 must have the same type for all clauses). As usual, `case` clauses can
 contain guards as well.
 
+The number of patterns after each `\` determine the arity of the function that
+a `case` expression produces. The *n*th pattern after the `\` is matched on
+the *n*th argument given to the function.
+
 If there is no scrutinee, it is not immediately clear what the meaning of an
 expression without clauses, i.e. the expression `case of {}`, should be, since
-the number of arguments to the anonymous function is not specified. The most
-useful and most obvious variant is to assume that this function takes one
-argument, thus, `case of {}` will be equivalent to `\x -> case x of {}`.
-(Other approaches are possible, see Alternatives section.)
-This expression is only valid with the `-XEmptyCase` extension.
+the number of arguments to the anonymous function is not specified. User might
+expect this to compile if the `-XEmptyCase` extension is enabled. However, due
+to the inherent ambiguity, this proposal does not allow a `case` expression
+that lacks both a scrutinee and clauses. Other approaches are possible, see
+Alternatives section.
 
 Like the existing behavior for alternatives in `case`
 expressions, and equations in function declaration syntax, it is
 possible to use `where` clauses within each clause of the extended `case`
-expression.
+expression. Furthermore, each clause can have guards, which appear after all
+patterns (see BNF).
 
 Once the [*Binding type variables in lambda-expressions*](https://github.com/ghc-proposals/ghc-proposals/blob/master/proposals/0155-type-lambda.rst)
 proposal is being implemented, with `-XTypeAbstractions`, `case`-expressions will also be able to bind type
@@ -137,21 +142,19 @@ variables.
         <td><i>alts</i></td><td>&rarr;</td><td><i>alt<sub>1</sub></i> ; &hellip; ; <i>alt<sub>n</sub></i></td><td>(<i>n</i> &ge; 1)</td>
     </tr>
     <tr>
-        <td><i>alt</i></td><td>&rarr;</td><td><i>pat</i> <tt>-&gt;</tt> <i>exp</i> [<tt>where</tt> <i>decls</i>]</td>
+        <td><i>alt</i></td><td>&rarr;</td><td><i>pat</i> <tt>-&gt;</tt> <i>exp</i> [ <tt>where</tt> <i>decls</i> ]</td>
     </tr>
     <tr>
-        <td></td><td>|</td><td><i>pat</i> <i>gdpat</i> [<tt>where</tt> <i>decls</i>]</td>
+        <td></td><td>|</td><td><i>pat</i> <i>gdpat</i> [ <tt>where</tt> <i>decls</i> ]</td>
     </tr>
     <tr>
         <td></td><td>|</td><td></td><td>(empty alternative)</td>
     </tr>
     <tr>
+        <td><i>gdpat</i></td><td>&rarr;</td><td><i>guards</i> <tt>-&gt;</tt> <i>exp</i> [ <i>gdpat</i> ]</td>
     </tr>
     <tr>
-        <td><i>gdpat</i></td><td>&rarr;</td><td><i>guards</i> <tt>-&gt;</tt> <i>exp</i> [ <i>gdpat</i></td>
-    </tr>
-    <tr>
-        <td><i>guards</i></td><td>&rarr;</td><td>|<i>guard<sub>1</sub></i>, &hellip;, <i>guard<sub>n</sub></i></td><td>(<i>n</i> &ge; 1)</td>
+        <td><i>guards</i></td><td>&rarr;</td><td><tt>|</tt> <i>guard<sub>1</sub></i>, &hellip;, <i>guard<sub>n</sub></i></td><td>(<i>n</i> &ge; 1)</td>
     </tr>
     <tr>
         <td><i>guard</i></td><td>&rarr;</td><td><i>pat</i> <tt>&lt;-</tt> <i>infixexp</i></td><td>(pattern guard)</td>
