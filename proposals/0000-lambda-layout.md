@@ -137,9 +137,9 @@ variables.
         <td><i>lexp</i></td><td>&rarr;</td><td><tt>case</tt> <i>exp</i> <tt>of</tt> { <i>alts</i> }</td>
     </tr>
     <tr>
-        <td></td><td>|</td><td><tt>case</tt> <i>exp</i> <tt>of</tt> {}</td><td>(<i>with</i> <tt>-XEmptyCase</tt>)</td>
+        <td></td><td>|</td><td><tt>case</tt> <i>exp</i> <tt>of</tt> <tt>{}</tt></td><td>(<i>with</i> <tt>-XEmptyCase</tt>)</td>
     <tr>
-        <td><i>alts</i></td><td>&rarr;</td><td><i>alt<sub>1</sub></i> ; &hellip; ; <i>alt<sub>n</sub></i></td><td>(<i>n</i> &ge; 1)</td>
+        <td><i>alts</i></td><td>&rarr;</td><td><i>alt<sub>1</sub></i> <tt>;</tt> &hellip; <tt>;</tt> <i>alt<sub>n</sub></i></td><td>(<i>n</i> &ge; 1)</td>
     </tr>
     <tr>
         <td><i>alt</i></td><td>&rarr;</td><td><i>pat</i> <tt>-&gt;</tt> <i>exp</i> [ <tt>where</tt> <i>decls</i> ]</td>
@@ -154,7 +154,7 @@ variables.
         <td><i>gdpat</i></td><td>&rarr;</td><td><i>guards</i> <tt>-&gt;</tt> <i>exp</i> [ <i>gdpat</i> ]</td>
     </tr>
     <tr>
-        <td><i>guards</i></td><td>&rarr;</td><td><tt>|</tt> <i>guard<sub>1</sub></i>, &hellip;, <i>guard<sub>n</sub></i></td><td>(<i>n</i> &ge; 1)</td>
+        <td><i>guards</i></td><td>&rarr;</td><td><tt>|</tt> <i>guard<sub>1</sub></i><tt>,</tt> &hellip;<tt>,</tt> <i>guard<sub>n</sub></i></td><td>(<i>n</i> &ge; 1)</td>
     </tr>
     <tr>
         <td><i>guard</i></td><td>&rarr;</td><td><i>pat</i> <tt>&lt;-</tt> <i>infixexp</i></td><td>(pattern guard)</td>
