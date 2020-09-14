@@ -129,13 +129,38 @@ variables.
 
 <table>
     <tr>
-        <td><i>lexp</i></td><td>&rarr;`case` <i>exp</i> `of` { <i>alts</i> }</td>
+        <td><i>lexp</i></td><td>&rarr;</td><td><tt>case</tt> <i>exp</i> <tt>of</tt> { <i>alts</i> }</td>
     </tr>
     <tr>
-        <td><i>alts</i></td><td>&rarr;<i>alt<sub>1</sub></i> ; … ; <i>altₙ</i></td>
+        <td></td><td>|</td><td><tt>case</tt> <i>exp</i> <tt>of</tt> {}</td><td>(<i>with</i> <tt>-XEmptyCase</tt>)</td>
+    <tr>
+        <td><i>alts</i></td><td>&rarr;</td><td><i>alt<sub>1</sub></i> ; &hellip; ; <i>alt<sub>n</sub></i></td><td>(<i>n</i> &ge; 1)</td>
     </tr>
     <tr>
-        <td>*alt*</td><td>→ *pat* -> *exp* [`where` *decls*]</td>
+        <td><i>alt</i></td><td>&rarr;</td><td><i>pat</i> <tt>-&gt;</tt> <i>exp</i> [<tt>where</tt> <i>decls</i>]</td>
+    </tr>
+    <tr>
+        <td></td><td>|</td><td><i>pat</i> <i>gdpat</i> [<tt>where</tt> <i>decls</i>]</td>
+    </tr>
+    <tr>
+        <td></td><td>|</td><td></td><td>(empty alternative)</td>
+    </tr>
+    <tr>
+    </tr>
+    <tr>
+        <td><i>gdpat</i></td><td>&rarr;</td><td><i>guards</i> <tt>-&gt;</tt> <i>exp</i> [ <i>gdpat</i></td>
+    </tr>
+    <tr>
+        <td><i>guards</i></td><td>&rarr;</td><td>|<i>guard<sub>1</sub></i>, &hellip;, <i>guard<sub>n</sub></i></td><td>(<i>n</i> &ge; 1)</td>
+    </tr>
+    <tr>
+        <td><i>guard</i></td><td>&rarr;</td><td><i>pat</i> <tt>&lt;-</tt> <i>infixexp</i></td><td>(pattern guard)</td>
+    </tr>
+    <tr>
+        <td></td><td>|</td><td><tt>let</tt> <i>decls</i></td><td>(local declaration)</td>
+    </tr>
+    <tr>
+        <td></td><td>|</td><td><i>infixexp</i></td><td>(boolean guard)</td>
     </tr>
 <table>
 
