@@ -141,7 +141,7 @@ variables.
         <td><i>lexp</i></td><td>&rarr;</td><td><tt>case</tt> <i>exp</i> <tt>of</tt> <tt>{</tt> <i>alts</i> <tt>}</tt></td>
     </tr>
     <tr>
-        <td></td><td><b>|</b></td><td><b><tt>case</tt> <i>exp</i> <tt>of</tt> <tt>{</tt> <i>nalts</i> <tt>}</tt></b></td>
+        <td></td><td><b>|</b></td><td><b><tt>case</tt> <tt>of</tt> <tt>{</tt> <i>nalts</i> <tt>}</tt></b></td>
     </tr>
     <tr>
         <td></td><td>|</td><td><tt>case</tt> <i>exp</i> <tt>of</tt> <tt>{}</tt></td><td>(with <tt>-XEmptyCase</tt>)</td>
