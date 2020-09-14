@@ -155,6 +155,9 @@ variables.
         <td></td><td>|</td><td><i>pat</i> <b>[ <tt>\</tt> <i>apat<sub>1</sub></i> &hellip; <i>apat<sub>n</sub></i><tt> ]</b> <i>gdpat</i> [ <tt>where</tt> <i>decls</i> ]</td><td>(<i>n</n> &ge; 1)</td>
     </tr>
     <tr>
+        <td></td><td>|</td><td></td><td>(empty alternative)</td>
+    </tr>
+    <tr>
         <td><b><i>nalts</i></b></td><td><b>&rarr;</b></td><td><b><i>nalt<sub>1</sub></i> <tt>;</tt> &hellip; <tt>;</tt> <i>nalt<sub>n</sub></i></b></td><td><b>(<i>n</i> &ge; 1)</b></td>
     </tr>
     <tr>
@@ -164,7 +167,7 @@ variables.
         <td></td><td><b>|</b></td><td><b><tt>\</tt> <i>apat<sub>1</sub></i> &hellip; <i>apat<sub>n</sub></i><tt> <i>gdpat</i> [ <tt>where</tt> <i>decls</i> ]</b></td><td><b>(<i>n</n> &ge; 1)</b></td>
     </tr>
     <tr>
-        <td></td><td>|</td><td></td><td>(empty alternative)</td>
+        <td></td><td><b>|</b></td><td></td><td><b>(empty alternative)</b></td>
     </tr>
     <tr>
         <td><i>gdpat</i></td><td>&rarr;</td><td><i>guards</i> <tt>-&gt;</tt> <i>exp</i> [ <i>gdpat</i> ]</td>
