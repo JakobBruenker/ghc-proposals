@@ -134,7 +134,7 @@ variables.
 
 <table>
     <tr>
-        <td><i>lexp</i></td><td>&rarr;</td><td><tt>case</tt> <i>exp</i> <tt>of</tt> { <i>alts</i> }</td>
+        <td><i>lexp</i></td><td>&rarr;</td><td><tt>case</tt> <i>exp</i> <tt>of</tt> <tt>{</tt> <i>alts</i> <tt>}</tt></td>
     </tr>
     <tr>
         <td></td><td>|</td><td><tt>case</tt> <i>exp</i> <tt>of</tt> <tt>{}</tt></td><td>(<i>with</i> <tt>-XEmptyCase</tt>)</td>
