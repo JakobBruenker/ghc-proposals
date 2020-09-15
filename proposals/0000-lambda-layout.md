@@ -107,8 +107,8 @@ must have the same type for all clauses). As usual, `case` clauses can
 contain guards as well.
 
 The number of patterns after each `\` determine the arity of the function that
-a `case` expression produces. The *n*th pattern after the `\` is matched on
-the *n*th argument given to the function.
+a `case` expression produces. The *n*th pattern after the `\` is matched
+against the *n*th argument given to the function.
 
 Note that the patterns after the `\` must be enclosed by parentheses if they
 consist of more than one token, just like patterns in a lambda expression, but
