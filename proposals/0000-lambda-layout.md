@@ -267,7 +267,7 @@ how some snippets found on hackage would look if they used this new syntax:
 
 roc-id-0.1.0.0, Gender.hs
 ```Haskell
--- With -XLambdaCase
+-- With today's -XLambdaCase
 printGender :: Language -> Gender -> Text
 printGender = \case
   English -> printGenderEnglish
@@ -347,6 +347,9 @@ they have been, while ignoring the added functionality for as long as necessary
 or desired.
 
 ## Alternatives
+
+ - The syntax extension could be given its own extension name instead of
+   integrated into `-XLambdaCase`.
 
  - Zero clauses could be permitted. In this case, however, a way would have to be found
    to indicate how many arguments a given `\ of`-expression matches on, as otherwise, it would
