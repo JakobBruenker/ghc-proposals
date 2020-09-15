@@ -369,11 +369,12 @@ or desired.
  - The syntax extension could be given its own extension name instead of
    being integrated into `-XLambdaCase`.
 
- - Zero clauses could be permitted. In this case, however, a way would have to be found
-   to indicate how many arguments a given `\ of`-expression matches on, as otherwise, it would
-   be ambiguous. The obvious, and most useful case would be one argument, so
-   this could be chosen. Another more general alternative would be to add
-   absurd patterns to the language.
+ - Zero clauses could be permitted even without scrutinee, given `-XEmptyCase`.
+   In this case, however, a way would have to be found to indicate how many
+   arguments a given `case` expression accepts, as otherwise, it would be
+   ambiguous. The obvious and most useful case would be one argument, so this
+   could be chosen. Another more general alternative would be to add absurd
+   patterns to the language.
 
  - Regular lambda expressions could be extended to use layout and guards, however,
    this necessitates some potentially controversial decision on when exactly to
