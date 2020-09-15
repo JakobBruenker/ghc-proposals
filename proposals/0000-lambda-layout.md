@@ -193,77 +193,37 @@ report can also be used.
 
 ## Examples
 
-Using multi-way lambda expressions with guards allows shortening some definitions:
-
-```Haskell
-{-# LANGUAGE MultiWayIf, BlockArguments #-}
-take' :: Int -> [a] -> [a]
-take' = flip $ flip foldr (const [])
-  \x more n -> if | n > 0 -> x : more (n - 1)
-                  | otherwise -> []
-
--- becomes
-
-take' :: Int -> [a] -> [a]
-take' = flip $ flip foldr (const [])
-  \of x more n | n > 0 -> x : more (n - 1)
-               | otherwise -> []
-```
-
-Multi-way lambdas can always replace `-XMultiWayIf`:
-
-```Haskell
-foo = bar baz if | g1 -> a
-                 | g2 -> b
-
--- with -XBlockArguments becomes
-
-foo = bar baz \of | g1 -> a
-                  | g2 -> b
-```
-
-`\case` can be replaced by a `\ of`-expression:
-
-```Haskell
-\case Bar baz -> Just baz
-      Quux -> Nothing
-
--- becomes
-
-\of (Bar baz) -> Just baz
-    Quux -> Nothing
-```
-
-Lambda expressions are more powerful since they can match on multiple patterns:
+`case` expressions are now more powerful than lambda expressions since they can
+match on multiple patterns:
 
 ```Haskell
 -- \case can't be used here!
--- At least not as easily as in the previous example
+-- At least not easily
 \foo bar baz -> case (foo, bar, baz) of
   (Just 4, 3, False) -> 42
   _ -> 0
 
 -- becomes
 
-\of
-  (Just 4) 3 False -> 42
-  _ _ _ -> 0
+case of
+  \(Just 4) 3 False -> 42
+  \_ _ _ -> 0
 ```
 
-`\ of`-expressions can be used instead of regular function declaration syntax,
+`case`-expressions can be used instead of regular function declaration syntax,
 potentially resulting in more concise definitions:
 
 ```Haskell
-extremelyLengthyFunctionIdentifier (Just a) False = Just 42
+extremelyLengthyFunctionIdentifier ma       False | isJust ma -> Just 42
 extremelyLengthyFunctionIdentifier (Just a) True  = Just (a / 2)
 extremelyLengthyFunctionIdentifier _        _     = Nothing
 
 -- becomes
 
-extremelyLengthyFunctionIdentifier = \of
-  (Just a) False -> Just 42
-  (Just a) True  -> Just (a / 2)
-  _        _     -> Nothing
+extremelyLengthyFunctionIdentifier = case of
+  \ma       False | isJust ma -> Just 42
+  \(Just a) True  -> Just (a / 2)
+  \_        _     -> Nothing
 ```
 
 This also makes it possible to have `where` bindings that scope over multiple
@@ -281,87 +241,33 @@ foo Nothing = magicNumber
 
 -- becomes
 
--- note that the first `where` clause belongs to the first `\ of`-expression
+-- note that the first `where` clause belongs to the first `case` expression
 -- clause, rather than the function declaration, because it is indented further
-foo = \of
-  (Just x) | x < 0 -> ...
-           | let y = blah + 1 -> ...
+foo = case of
+  \(Just x) | x < 0 -> ...
+            | let y = blah + 1 -> ...
     where blah = x + magicNumber
-  Nothing -> magicNumber
+  \Nothing -> magicNumber
   where
     magicNumber = 5
 ```
 
+```Haskell
+-- Mock example of a server connection
+sendToServer :: Hostname -> Port -> Message -> IO ()
+sendToServer host port message = connect host port >>= case message of
+  TextMsg  text  \ (Connection conn) | isTooLong text = putStrLn $ "Message too long: " + show text
+                                     | otherwise      = sendText conn text
+  VoiceMsg audio \ (Connection conn) -> sendAudio conn audio defaultBitrate
+  _              \ (ConnErr err) -> putStrLn $ "Could not send message: " + show err
+```
+
 To illustrate with some real-world examples, this section shows
 how some snippets found on hackage would look if they used this new syntax:
-  
-megaparsec-tests-8.0.0/tests/Text/Megaparsec/Char/LexerSpec.hs
+
+roc-id-0.1.0.0, Gender.hs
 ```Haskell
-forAll mkFold $ \(l0,l1,l2) -> do
-  let {- various bindings -}
-  if | end0 && col1 <= col0 -> prs p s `shouldFailWith`
-       errFancy (getIndent l1 + g 1) (ii GT col0 col1)
-     | end1 && col2 <= col0 -> prs p s `shouldFailWith`
-       errFancy (getIndent l2 + g 2) (ii GT col0 col2)
-     | otherwise -> prs p s `shouldParse` (sbla, sblb, sblc)
-
--- with -XMultiWayLambda
-
-forAll mkFold $ \(l0,l1,l2) -> do
-  let {- various bindings -}
-  \of | end0 && col1 <= col0 -> prs p s `shouldFailWith`
-        errFancy (getIndent l1 + g 1) (ii GT col0 col1)
-      | end1 && col2 <= col0 -> prs p s `shouldFailWith`
-        errFancy (getIndent l2 + g 2) (ii GT col0 col2)
-      | otherwise -> prs p s `shouldParse` (sbla, sblb, sblc)
-```
-
-caramia-0.7.2.2/src/Graphics/Caramia/Texture.hs:
-```Haskell
-return $ if
-    | result == GL_CLAMP_TO_EDGE -> Clamp
-    | result == GL_REPEAT -> Repeat
-    | otherwise -> error "getWrapping: unexpected wrapping mode."
-
--- with -XMultiWayLambda and -XBlockArguments
-
-return \of
-    | result == GL_CLAMP_TO_EDGE -> Clamp
-    | result == GL_REPEAT -> Repeat
-    | otherwise -> error "getWrapping: unexpected wrapping mode."
-```
-
-red-black-record-2.1.0.3/lib/Data/RBR/Internal.hs
-```Haskell
-_prefixNS = \case
-    Left  l -> S l
-    Right x -> case x of Here fv -> Z @_ @v @start fv
-_breakNS = \case
-    Z x -> Right (Here x)
-    S x -> Left x
-
--- with -XMultiWayLambda
-_prefixNS = \of
-    (Left  l) -> S l
-    (Right x) -> case x of Here fv -> Z @_ @v @start fv
-_breakNS = \of
-    (Z x) -> Right (Here x)
-    (S x) -> Left x
-```
-
-recursors-0.1.0.0/Control/Final.hs
-```Haskell
-map (\case PlainTV n    -> n
-           KindedTV n _ -> n) binders
-           
--- With -XMultiWayLambda
-
-map (\of (PlainTV n)    -> n
-         (KindedTV n _) -> n) binders
-```
-
-roc-id-0.1.0.0/library/ROC/ID/Gender.hs
-```Haskell
+-- With -XLambdaCase
 printGender :: Language -> Gender -> Text
 printGender = \case
   English -> printGenderEnglish
@@ -377,53 +283,77 @@ printGenderChinese = \case
   Male   -> "男性"
   Female -> "女性"
 
--- With -XMultiWayLambda - this makes use of the capability to have multiple parameters
-
+-- With this proposal - this makes use of the capability to have multiple parameters
 printGender :: Language -> Gender -> Text
-printGender = \of
-  English Male   -> "Male"
-  English Female -> "Female"
-  Chinese Male   -> "男性"
-  Chinese Female -> "女性"
+printGender = case of
+  \English Male   -> "Male"
+  \English Female -> "Female"
+  \Chinese Male   -> "男性"
+  \Chinese Female -> "女性"
+```
+
+process-1.6.10.0, System.Process
+```Haskell
+readCreateProcess cp input = do
+    (ex, output) <- withCreateProcess_ "readCreateProcess" cp_opts $
+      \mb_inh mb_outh _ ph ->
+        case (mb_inh, mb_outh) of
+          (Just inh, Just outh) -> do
+
+            -- fork off a thread to start consuming the output
+            output  <- hGetContents outh
+            withForkWait (C.evaluate $ rnf output) $ \waitOut -> do
+              {...}
+          (Nothing,_) -> error "readCreateProcess: Failed to get a stdin handle."
+          (_,Nothing) -> error "readCreateProcess: Failed to get a stdout handle."
+
+    {...}
+
+-- The lambda and case expressions can be combined
+readCreateProcess cp input = do
+    (ex, output) <- withCreateProcess_ "readCreateProcess" cp_opts $
+      case of
+        \(Just inh) (Just outh) _ ph -> do
+          -- fork off a thread to start consuming the output
+          output  <- hGetContents outh
+          withForkWait (C.evaluate $ rnf output) $ \waitOut -> do
+            {...}
+        \(Nothing,_) _ _ -> error "readCreateProcess: Failed to get a stdin handle."
+        \(_,Nothing) _ _ -> error "readCreateProcess: Failed to get a stdout handle."
+
+    {...}
 ```
 
 ## Effect and Interactions
 
-Enabling the extension enables users to use the suggested syntax. This obviates
-the need for `-XMultiWayIf` and `-XLambdaCase`.
+The proposed functionality has some use case overlap with the current
+`-XLambdaCase` functionality however, it is more powerful, since it can accept
+multiple arguments, and is integrated with the existing `case` functionality.
 
-As `of` is already a keyword, no currently allowed syntax is stolen by this extension,
-and the behavior of no currently legal program would be changed with the extension
-enabled.
+No currently allowed syntax is stolen by this extension, and the behavior of no
+currently legal program would be changed with the extension enabled.
 
 ## Costs and Drawbacks
 
-It is one additional syntactic construct to maintain, however the maintenance
-cost should be fairly low due to the similarity to already existing constructs.
+It adds complexity to an existing syntactic construct, which increases the
+maintenance burden, however, the added maintenance should be similar to that
+which is necessary for other existing constructs like `\case`, which
+means the added maintenance cost should not be overly large.
 
-While this also means one additional construct to learn for beginners, the
-syntax is consistent with similar constructs in the existing language, and as
-such users might be surprised that a construct with these capabilities
-doesn't yet exist.
+While this also means a more complex construct to learn for beginners, the
+syntax is consistent with similar constructs in the existing language like
+lambda expressions, and `case` expressions can continue to be taught the way
+they have been, while ignoring the added functionality for as long as necessary
+or desired.
 
 ## Alternatives
 
  - Zero clauses could be permitted. In this case, however, a way would have to be found
    to indicate how many arguments a given `\ of`-expression matches on, as otherwise, it would
-   be ambiguous.
-   The number of arguments a `\ of`-expression pattern matches on becomes obvious from the
-   clauses, e.g. `\ of a b -> ...` clearly matches on two arguments. Without clauses, this remains
-   unclear. This means it would also be unclear whether the patterns are non-exhaustive:
-   Consider the expression `f = \of {} :: Bool -> Void -> a`. If the expression is supposed to match on
-   both arguments, the patterns are exhaustive. If it is only supposed to match on the first argument
-   and evaluate to a funtion of type `Void -> a`, it is not exhaustive. Moreover, in the former case,
-   ``f undefined `seq` ()`` evaluates to `()`, whereas in the latter case, it evaluates to bottom.
-   With `\case {}` this problem doesn't arise, since it always matches on exactly one argument,
-   and similarly for `case x of {}`, which only matches on `x`.
-   A syntax to resolve this has been proposed in the discussion: `(\of)` for matching on no arguments,
-   `(\of _)` for one, `(\of _ _)` for two, and so on.
-    -- TODO -- absurd patterns?
-   
+   be ambiguous. The obvious, and most useful case would be one argument, so
+   this could be chosen. Another more general alternative would be to add
+   absurd patterns to the language.
+
  - Regular lambda expressions could be extended to use layout and guards, however,
    this necessitates some potentially controversial decision on when exactly to
    herald layout, since always doing so would disallow existing idioms; these would not
@@ -433,7 +363,7 @@ doesn't yet exist.
      f a >>= \b ->
      g b >>= \c ->
      h c
-     
+
    foo = \x -> do
      a x
      b
@@ -445,23 +375,21 @@ doesn't yet exist.
 
    Both of these would avoid the problem, but both rules are dissimilar from how layout heralding
    is handled in other Haskell constructs.
-   
- - `\ of`-expressions with zero patterns could only be allowed if the expression contains guards.
-   This would make them somewhat less consistent, but it is how lambda expressions work
-   (i.e. `\ -> ...` is illegal) and only disallows expressions that are needlessly verbose (i.e.
-   `\of -> exp` can always be replaced by `exp`).
-   
+
+ - zero patterns after the `\` could be allowed, however, there would be no
+   use cases for this that aren't better covered by `-XMultiWayIf`.
+
  - `\case` could be deprecated, since all its use cases would be subsumed by `\of`, albeit with additional
    parentheses around patterns that consist of more than one token. However, the discussion of this proposal
    has shown that such a deprecation would be a controversial
-   change of its own and that some working out has to be done as to the exact details of it, thus,
-   this might be better suited to being its own, separate proposal. Combined with this, an alternative to the keyword would be
-   to reuse `\case` and change the way it works to the behaviour described in this proposal.
- 
- - There are also other alternatives for the keyword that have been raised: `\cases` and `\mcase`.
- 
+   change.
+
+ - The `\case` functionality could be copied to a construct with a different
+   keyword (e.g. `\cases` or `\mcase`), which can have multiple patterns which
+   must have parentheses.
+
  - The possibility to have a construct similar to `-XMultiWayIf` but without the keyword, i.e. using guards directly as
-   an expression, was also raised in the discussion. If this were to be used instead of `\of` expressions, any pattern
+   an expression, was also raised in the discussion. If this were to be used, any pattern
    matching would have to be done with pattern guards.
 
 ## Implementation Plan
