@@ -401,10 +401,9 @@ or desired.
  - zero patterns after the `\` could be allowed, however, there would be no
    use cases for this that aren't better covered by `-XMultiWayIf`.
 
- - `\case` could be deprecated, since all its use cases would be subsumed by `\of`, albeit with additional
+ - `\case` could be deprecated, since all its use cases would be subsumed by `case`, albeit with additional
    parentheses around patterns that consist of more than one token. However, the discussion of this proposal
-   has shown that such a deprecation would be a controversial
-   change.
+   has shown that such a deprecation would be a controversial change.
 
  - The `\case` functionality could be copied to a construct with a different
    keyword (e.g. `\cases` or `\mcase`), which can have multiple patterns which
