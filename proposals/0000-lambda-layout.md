@@ -18,12 +18,12 @@ extending the `case` syntax to allow lambda expression functionality.
 In Haskell 2010, there are two syntaxes to define a function: via the function
 definition syntax, or via lambda expressions. The most obvious difference is
 that the former assigns a name to the function, whereas the latter can be used
-for anonymous functions. However, the differences go significantly beyond that:
+for anonymous functions. However, the differences go significantly beyond that,
+for example:
 
  - Lambda expressions can only have a single clause, function declarations
    can have an arbitrary non-zero number of equations
  - Lambda expressions cannot have guards
- - Lambda expressions must have at least one parameter
 
 There have been multiple attempts in the past to bring the capabilities of
 lambda expressions closer to those of function declarations:
