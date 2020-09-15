@@ -345,7 +345,7 @@ readCreateProcess cp input = do
 ## Effect and Interactions
 
 The proposed functionality has some use case overlap with the current
-`-XLambdaCase` functionality however, it is more powerful, since it can accept
+`-XLambdaCase` functionality. However, it is more powerful, since it can accept
 multiple arguments, and is integrated with the existing `case` functionality.
 
 No currently allowed syntax is stolen by this extension, and the behavior of no
