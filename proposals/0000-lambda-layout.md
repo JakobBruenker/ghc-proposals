@@ -367,7 +367,7 @@ or desired.
 ## Alternatives
 
  - The syntax extension could be given its own extension name instead of
-   integrated into `-XLambdaCase`.
+   being integrated into `-XLambdaCase`.
 
  - Zero clauses could be permitted. In this case, however, a way would have to be found
    to indicate how many arguments a given `\ of`-expression matches on, as otherwise, it would
