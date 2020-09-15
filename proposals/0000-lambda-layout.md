@@ -134,6 +134,8 @@ variables.
 
 ### BNF of changed syntax
 
+**Bold** indicates changes to the existing BNF.
+
 <table>
     <tr>
         <td><i>lexp</i></td><td>&rarr;</td><td><tt>case</tt> <i>exp</i> <tt>of</tt> <tt>{</tt> <i>alts</i> <tt>}</tt></td>
@@ -183,8 +185,6 @@ variables.
         <td></td><td>|</td><td><i>infixexp</i></td><td>(boolean guard)</td>
     </tr>
 <table>
-
-**Bold** indicates changes to the existing BNF.
 
 Aside from the explicit layout using `{`, `}`, and `;`, implicit layout as described in the Haskell
 report can also be used.
