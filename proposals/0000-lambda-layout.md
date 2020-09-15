@@ -192,7 +192,7 @@ report can also be used.
 ## Examples
 
 `case` expressions are now more powerful than lambda expressions since they can
-match on multiple patterns:
+have multiple clauses:
 
 ```Haskell
 -- \case can't be used here!
