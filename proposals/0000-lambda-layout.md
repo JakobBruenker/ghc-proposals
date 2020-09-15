@@ -116,7 +116,7 @@ unlike the pattern that can come before the `\`.
 
 If there is no scrutinee, it is not immediately clear what the meaning of an
 expression without clauses, i.e. the expression `case of {}`, should be, since
-the number of arguments to the anonymous function is not specified. User might
+the number of arguments to the anonymous function is not specified. Users might
 expect this to compile if the `-XEmptyCase` extension is enabled. However, due
 to the inherent ambiguity, this proposal does not allow a `case` expression
 that lacks both a scrutinee and clauses. Other approaches are possible, see
