@@ -46,8 +46,8 @@ lambda expressions closer to those of function declarations:
     function declaration or case-expression. Among other things, this made it
     easier to use guards inside of lambda expressions.
     - If there were an expression similar to lambda expressions that could have
-      guards, `-XMultiWayIf` would not be necessary as a workaround for guards
-      in lambda expressions in those cases.
+      guards, it could be used instead of using `-XMultiWayIf` as a workaround
+      for guards in lambda expressions in those cases.
  3. During the implementation of `-XLambdaCase`,
     [some suggested](https://gitlab.haskell.org/ghc/ghc/issues/4359#note_51110)
     allowing lambda expressions to have multiple clauses. This was not
@@ -224,7 +224,27 @@ extremelyLengthyFunctionIdentifier = case of
   \_        _     -> Nothing
 ```
 
-This also makes it possible to have `where` bindings that scope over multiple
+`case` expressions can be used to give guards to lambda expressions:
+```Haskell
+-- with -XMultiWayIf
+\a (MkFoo b) c -> if | a > b -> c
+                     | otherwise -> a
+
+-- with this proposal
+case of \a (MkFoo b) c | a > b -> c
+                       | otherwise -> a
+```
+Which of these is preferable is mainly a matter of taste, however, the latter
+can be conveniently adapted to use multiple clauses, should the need arise, for
+example to
+
+```Haskell
+case of \a (MkFoo b) c | a > b -> c
+                       | otherwise -> a
+        \_ (MkBar d) _ -> d
+```
+
+This proposal also makes it possible to have `where` bindings that scope over multiple
 equations
 
 ```Haskell
