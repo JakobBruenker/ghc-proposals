@@ -356,7 +356,7 @@ currently legal program would be changed with the extension enabled.
 It adds complexity to an existing syntactic construct, which increases the
 maintenance burden, however, the added maintenance should be similar to that
 which is necessary for other existing constructs like `\case`, which
-means the added maintenance cost should not be overly large.
+means the added maintenance cost should be fairly low.
 
 While this also means a more complex construct to learn for beginners, the
 syntax is consistent with similar constructs in the existing language like
