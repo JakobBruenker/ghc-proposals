@@ -53,7 +53,7 @@ lambda expressions closer to those of function declarations:
     allowing lambda expressions to have multiple clauses. This was not
     implemented: The most obvious approach of turning `\` into a layout herald
     had the disadvantage of making some common idioms invalid.
-    - The syntax extension of introduced in this proposal is fully backwards
+    - The syntax extension introduced in this proposal is fully backwards
       compatible with those idioms.
 
 This proposal, then, aims to overcome the shortcomings of lambda expressions
