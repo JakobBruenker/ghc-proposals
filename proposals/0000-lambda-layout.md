@@ -10,8 +10,6 @@ This proposal is [discussed at this pull request](https://github.com/ghc-proposa
 
 # Lambda extension for `case`
 
-This proposal introduces a new extension `-XLambdaCaseOf`, which introduces a
-lambda-like expression capable of handling multiple clauses as well as guards.
 This proposal expands the functionality of the `-XLambdaCase` extension, by
 extending the `case` syntax to allow lambda expression functionality.
 
